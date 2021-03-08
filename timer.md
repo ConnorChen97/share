@@ -1,3 +1,28 @@
+# 调度工具
+
+### 1. 定时器
+- jdk提供的定时器
+- Spring中的定时器
+
+### 2. 集群任务框架
+- Quartz
+
+### 3. 分布式任务平台
+- xxl-job
+- Elastic-job(apache shardingsphere-elasticjob)
+  - Elastic-lite
+  - Elastic-cloud
+- Powerjob
+- Apache DolphinScheduler
+
+### 4. 工作流调度工具
+- Azkaban
+- Oozie
+
+### 5. 资源调度工具
+- Apache Mesos
+- Apache Yarn
+
 ## 一.jdk中的定时器
 ### 1.java.util.Timer 
 可以通过创建 java.util.TimerTask 调度任务，在同一个线程中串行执行，相互影响。也就是说，对于同一个 Timer 里的多个 TimerTask 任务，如果一个 TimerTask 任务在执行中，其它 TimerTask 即使到达执行的时间，也只能排队等待。因为 Timer 是串行的，同时存在坑 ，所以后来 JDK 又推出了 ScheduledExecutorService ，Timer 也基本不再使用。
