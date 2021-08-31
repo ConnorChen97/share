@@ -14,6 +14,7 @@ node_modules 目录加载：对于系统模块、路径文件模块都找不到�
 2. 循环引用
 
 3. 对象引用关系考察，module.exports与exports的区别
+   
 exports 相当于 module.exports 的快捷方式
 ```js
 const exports = modules.exports;
@@ -34,6 +35,7 @@ modules.exports = {
 ```
 
 4. 对buffer的理解
+  
 Buffer 用于读取或操作二进制数据流，做为 Node.js API 的一部分使用时无需 require，用于操作网络协议、数据库、图片和文件 I/O 等一些需要大量二进制数据的场景。Buffer 在创建时大小已经被确定且是无法调整的。
 
 5. child_process和cluster的区别
@@ -117,4 +119,8 @@ process.memoryUsage()
 - 消息队列
 - 共享内存
 - socket
+
+16. setTimeout、setInterval和setImmediate的区别  
+
+[Node.js 事件循环，定时器和 process.nextTick()](https://nodejs.org/zh-cn/docs/guides/event-loop-timers-and-nexttick/)
 
