@@ -65,14 +65,34 @@ child_process.fork()： 衍生新的进程，进程之间是相互独立的，�
 
 6. console.log是异步的吗
 
-并没有什么规范或一组需求指定console.* 方法族如何工作——它们并不是JavaScript 正式的一部分，而是由宿主环境（请参考本书的“类型和语法”部分）添加到JavaScript 中的。因此，不同的浏览器和JavaScript 环境可以按照自己的意愿来实现，有时候这会引起混淆。
-尤其要提出的是，在某些条件下，某些浏览器的console.log(..) 并不会把传入的内容立即输出。出现这种情况的主要原因是，在许多程序（不只是JavaScript）中，I/O 是非常低速的阻塞部分。所以，（从页面/UI 的角度来说）浏览器在后台异步处理控制台I/O 能够提高性能，这时用户甚至可能根本意识不到其发生。
+```js
+var a = {b:{c:1}};
+console.log(a); // node.js环境下输出{ b: { c: 1 } }，在webkit浏览器环境(如chrome)下输出{ b: { c: 2 } }
+a.b.c = 2;
+```
 
-如果遇到这种少见的情况，最好的选择是在JavaScript 调试器中使用断点，而不要依赖控制台输出。次优的方案是把对象序列化到一个字符串中，以强制执行一次“快照”，比如通过JSON.stringify(..)。
+其实在 console.log 执行的时候，chrome 会对 log 的对象求一次值，打印出来是 Object ，可以继续展开的。但当你展开控制台中的 Object 的时候，chrome 又会对它求一次值，这一次是显示它的属性。所以才会有前后打印的东西不一样的情况发生，因为对象引用的实体的值改变了。
+如果把 console.log(a) 改为 console.log(JSON.stringify(a))， 这时就会输出{"b":{"c":1}}是刚开始期望的结果。
+
+也就是说WebKit的console.log并没有立即拍摄对象快照，相反，它只存储了一个指向对象的引用，然后在代码返回事件队列时才去拍摄快照。
+
+```js
+var a = {
+  index: 1
+}
+console.log(a)   // 在chrome中会打印出{index: 1}，但是展开对象时显示index: 2
+a.index++
+```
+
+像node.js文档中所说
+> Warning: The global console object's methods are neither consistently synchronous like the browser APIs they resemble, nor are they consistently asynchronous like all other Node.js streams. See the note on [process I/O](https://nodejs.org/dist/latest-v14.x/docs/api/process.html#process_a_note_on_process_i_o) for more information.
+
+并没有什么规范或一组需求指定console.* 方法族如何工作——它们并不是JavaScript 正式的一部分，而是由宿主环境添加到JavaScript 中的。因此，不同的浏览器和JavaScript 环境可以按照自己的意愿来实现，有时候这会引起混淆。
+尤其要提出的是，在某些条件下，某些浏览器的console.log(..) 并不会把传入的内容立即输出。出现这种情况的主要原因是，在许多程序（不只是JavaScript）中，I/O 是非常低速的阻塞部分。所以，（从页面/UI 的角度来说）浏览器在后台异步处理控制台I/O 能够提高性能，这时用户甚至可能根本意识不到其发生。
 
 console.log打印出来的内容并不是一定百分百可信的内容。一般对于基本类型number、string、boolean、null、undefined的输出是可信的。但对于Object等引用类型来说，则就会出现上述异常打印输出。
 
-所以对于一般基本类型的调试，调试时使用console.log来输出内容时，不会存在坑。但调试对象时，最好还是使用打断点(debugger)这样的方式来调试更好。
+console.log 是同步的，与异步完全无关。但是，console.log 打印一个对象的时候，打印的字符串只会打印对象的第一层，而展开后会直接从内存里读取该对象，因此，展开的对象读取的是这个对象的最新值（这一点往往造成 debug 时的诸多困惑，很坑，但是如果打印整个对象会大大降低 console.log 的性能，所以 chrome 不得不这么做）。对于一般基本类型的调试，调试时使用console.log来输出内容时，不会存在坑。但调试对象时，最好还是使用打断点(debugger)这样的方式来调试更好。
 
 7. __dirname，__filename，process.cwd()区别，为什么可以直接调用
 - __dirname：    获得当前执行文件所在目录的完整目录名
